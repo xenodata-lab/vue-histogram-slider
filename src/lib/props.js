@@ -135,5 +135,17 @@ export default {
   handleSize: {
     type: Number,
     default: 26
+  },
+  transformX: {
+    type: Function,
+    default: function(value) {
+      return value
+    }
+  },
+  transformY: {
+    type: Function,
+    default: function(value) {
+      return value.length
+    }
   }
 }

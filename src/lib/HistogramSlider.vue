@@ -65,8 +65,9 @@ export default {
 
   mounted() {
     const width = this.width - 20
-    const min = this.min || d3Array.min(this.data)
-    const max = this.max || d3Array.max(this.data)
+
+    const min = this.min || d3Array.min(this.data, d => this.transformX(d))
+    const max = this.max || d3Array.max(this.data, d => this.transformX(d))
     const isTypeSingle = this.type == 'single'
     var svg, histogram, x, y, hist, bins, colors, brush
 
@@ -131,13 +132,14 @@ export default {
 
       histogram = d3Array
         .bin()
+        .value(d => this.transformX(d))
         .domain(x.domain())
         .thresholds(width / (this.barWidth + this.barGap))
 
       // group data for bars
       bins = histogram(this.data)
 
-      y.domain([0, d3Array.max(bins, d => d.length)])
+      y.domain([0, d3Array.max(bins, d => this.transformY(d))])
 
       hist
         .selectAll(`.vue-histogram-slider-bar-${this.id}`)
@@ -146,11 +148,11 @@ export default {
         .insert('rect', 'rect.overlay')
         .attr('class', `vue-histogram-slider-bar-${this.id}`)
         .attr('x', d => x(d.x0))
-        .attr('y', d => y(d.length))
+        .attr('y', d => y(this.transformY(d)))
         .attr('rx', this.barRadius)
         .attr('width', this.barWidth)
         .transition(transition)
-        .attr('height', d => this.barHeight - y(d.length))
+        .attr('height', d => this.barHeight - y(this.transformY(d)))
         .attr('fill', d => (isTypeSingle ? this.holderColor : colors(d.x0)))
 
       if (this.ionRangeSlider) {
